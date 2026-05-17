@@ -517,16 +517,16 @@ class Fillora {
 
       // Climb up 4 levels to check if they clicked a button/submit element
       for (let i = 0; i < 4; i++) {
-        if (!current || current === document.body) break;
+        if (!current || current === document.body || current.nodeType !== 1) break;
 
-        const tag = current.tagName.toLowerCase();
-        const role = current.getAttribute('role') || '';
-        const cls = typeof current.className === 'string' ? current.className : (current.getAttribute('class') || '');
+        const tag = current.tagName ? current.tagName.toLowerCase() : '';
+        const role = typeof current.getAttribute === 'function' ? (current.getAttribute('role') || '') : '';
+        const cls = typeof current.className === 'string' ? current.className : (typeof current.getAttribute === 'function' ? (current.getAttribute('class') || '') : '');
         const txt = (current.textContent || '').toLowerCase().trim();
 
         const isSubmitType = current.type === 'submit' || tag === 'button' || role === 'button';
         const hasSubmitText = txt === 'submit' || txt === 'next' || txt === 'save' || txt === 'continue' || txt === 'send' || txt === 'submit request';
-        const isGoogleSubmit = cls.includes('uArJ5e') && (txt.includes('submit') || txt.includes('next'));
+        const isGoogleSubmit = typeof cls === 'string' && cls.includes('uArJ5e') && (txt.includes('submit') || txt.includes('next'));
 
         if (isSubmitType || hasSubmitText || isGoogleSubmit) {
           clickedSubmit = true;
