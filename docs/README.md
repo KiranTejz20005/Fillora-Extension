@@ -87,7 +87,7 @@ You can seed or restore your autofill details by uploading a custom JSON backup.
   },
   {
     "label": "Email Address",
-    "value": "vijji1650@gmail.com",
+    "value": "kirnlanke824@gmail.com",
     "fieldType": "email",
     "patterns": ["email", "mail_id", "email_address"]
   }
