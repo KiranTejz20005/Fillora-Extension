@@ -51,6 +51,10 @@
       --transition-smooth: 0.4s cubic-bezier(0.34, 1.56, 0.64, 1); /* High-fidelity bounce */
     }
 
+    html {
+      background: transparent;
+    }
+
     body {
       width: 380px;
       background: var(--bg);
@@ -59,10 +63,12 @@
       color: var(--text-main);
       font-size: 13px;
       line-height: 1.5;
-      overflow-x: hidden;
+      overflow: hidden; /* Prevent content scroll leakage past rounded borders */
       letter-spacing: -0.015em;
       -webkit-font-smoothing: antialiased;
       -moz-osx-font-smoothing: grayscale;
+      border-radius: 16px; /* Breathtaking rounded extension layout corners */
+      border: 1px solid var(--border-glass);
     }
 
     /* ── Custom Smooth Scrollbar ── */
@@ -227,7 +233,7 @@
       display: flex;
       align-items: center;
       gap: 10px;
-      padding: 12px 16px;
+      padding: 0 16px; /* Set to 0 when hidden to prevent empty gaps */
       margin: 0 16px;
       border-radius: var(--radius-md);
       font-size: 12px;
@@ -245,7 +251,9 @@
       opacity: 1;
       transform: translateY(0) scale(1);
       height: auto;
+      padding: 12px 16px; /* Apply padding only when actively displayed */
       margin-top: 16px;
+      margin-bottom: 6px;
       pointer-events: auto;
     }
 
@@ -961,7 +969,6 @@
   <!-- Header -->
   <div class="header">
     <div class="brand" id="brandHeader">
-      <div class="brand-logo">F</div>
       <div class="brand-info">
         <h1>Fillora</h1>
         <p>Smart Form Autofill</p>
