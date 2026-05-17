@@ -1,0 +1,158 @@
+[
+  {
+    "label": "Name",
+    "value": "Lanke Kiran Teja",
+    "fieldType": "text",
+    "patterns": ["name", "full_name", "fullname", "display_name"]
+  },
+  {
+    "label": "First Name",
+    "value": "Kiran Teja",
+    "fieldType": "text",
+    "patterns": ["first_name", "firstname", "fname"]
+  },
+  {
+    "label": "Last Name",
+    "value": "Lanke",
+    "fieldType": "text",
+    "patterns": ["last_name", "lastname", "lname"]
+  },
+  {
+    "label": "Email",
+    "value": "kiranlanke824@gmail.com",
+    "fieldType": "email",
+    "patterns": ["email", "email_id", "email_address"]
+  },
+  {
+    "label": "Alternate Email",
+    "value": "kittuplayz123@gmail.com",
+    "fieldType": "email",
+    "patterns": ["alt_email", "alternate_email"]
+  },
+  {
+    "label": "Phone number",
+    "value": "+91-9392977067",
+    "fieldType": "tel",
+    "patterns": ["phone", "mobile", "tel", "cell", "contact", "whatsapp", "phone_number", "mobile_number"]
+  },
+  {
+    "label": "WhatsApp number",
+    "value": "+91-9392977067",
+    "fieldType": "tel",
+    "patterns": ["whatsapp", "whatsapp_number", "whatsapp_no"]
+  },
+  {
+    "label": "Address",
+    "value": "4-31-311, Y.S Latha Nilayam, Hyderabad, Telangana, India",
+    "fieldType": "textarea",
+    "patterns": ["address", "street_address", "location"]
+  },
+  {
+    "label": "City",
+    "value": "Hyderabad",
+    "fieldType": "text",
+    "patterns": ["city", "town"]
+  },
+  {
+    "label": "State",
+    "value": "Telangana",
+    "fieldType": "text",
+    "patterns": ["state", "province", "region"]
+  },
+  {
+    "label": "Country",
+    "value": "India",
+    "fieldType": "text",
+    "patterns": ["country"]
+  },
+  {
+    "label": "GitHub URL",
+    "value": "https://github.com/KiranTejz20005",
+    "fieldType": "url",
+    "patterns": ["github", "github_url"]
+  },
+  {
+    "label": "LinkedIn URL",
+    "value": "https://linkedin.com/in/kirantejalanke",
+    "fieldType": "url",
+    "patterns": ["linkedin", "linkedin_url"]
+  },
+  {
+    "label": "COLLEGE/UNIVERSITY NAME",
+    "value": "St. Peter's Engineering College (Autonomous)",
+    "fieldType": "text",
+    "patterns": ["college", "university", "school", "institution", "institute"]
+  },
+  {
+    "label": "DEPARTMENT",
+    "value": "CSM (Computer Science and Engineering)",
+    "fieldType": "text",
+    "patterns": ["department", "dept", "branch", "stream"]
+  },
+  {
+    "label": "Degree",
+    "value": "Bachelor of Technology in Computer Science and Engineering",
+    "fieldType": "text",
+    "patterns": ["degree", "course", "qualification"]
+  },
+  {
+    "label": "CGPA",
+    "value": "9.41/10",
+    "fieldType": "text",
+    "patterns": ["cgpa", "gpa", "percentage", "marks"]
+  },
+  {
+    "label": "Graduation Year",
+    "value": "2027",
+    "fieldType": "text",
+    "patterns": ["grad_year", "graduation_year", "passing_year"]
+  },
+  {
+    "label": "Start Year",
+    "value": "2023",
+    "fieldType": "text",
+    "patterns": ["start_year", "admission_year"]
+  },
+  {
+    "label": "Programming Languages",
+    "value": "Python, Java, Dart, JavaScript, TypeScript",
+    "fieldType": "textarea",
+    "patterns": ["programming_languages", "languages", "skills"]
+  },
+  {
+    "label": "Frontend Skills",
+    "value": "React, Tailwind CSS, Vite, HTML5, CSS3, Flutter",
+    "fieldType": "textarea",
+    "patterns": ["frontend_skills", "frontend", "web_skills"]
+  },
+  {
+    "label": "Backend Skills",
+    "value": "Node.js, Express, FastAPI, Xano, RESTful APIs",
+    "fieldType": "textarea",
+    "patterns": ["backend_skills", "backend"]
+  },
+  {
+    "label": "Databases",
+    "value": "PostgreSQL, MongoDB, SQL, Firebase, Supabase, SQLite",
+    "fieldType": "textarea",
+    "patterns": ["databases", "database_skills"]
+  },
+  {
+    "label": "Current Job Title",
+    "value": "Full-Stack Developer",
+    "fieldType": "text",
+    "patterns": ["designation", "job_title", "role"]
+  },
+  {
+    "label": "Latest Experience",
+    "value": "Full-Stack Developer at LifeMonk (Jan 2026 - Apr 2026)",
+    "fieldType": "textarea",
+    "patterns": ["experience", "latest_experience", "work_history"]
+  },
+  {
+    "label": "Total Internships",
+    "value": "4 (LifeMonk, Swecha, AICTE, HCL Tech)",
+    "fieldType": "text",
+    "patterns": ["internships", "total_internships"]
+  }
+]
