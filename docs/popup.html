@@ -1,0 +1,303 @@
+<!DOCTYPE html>
+<html>
+<head>
+  <meta charset="UTF-8">
+  <style>
+    * {
+      margin: 0;
+      padding: 0;
+      box-sizing: border-box;
+    }
+
+    body {
+      width: 400px;
+      font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
+      background: #f5f5f5;
+    }
+
+    .header {
+      background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+      color: white;
+      padding: 16px;
+      text-align: center;
+    }
+
+    .header h1 {
+      font-size: 18px;
+      font-weight: 600;
+    }
+
+    .tabs {
+      display: flex;
+      border-bottom: 1px solid #ddd;
+      background: white;
+    }
+
+    .tab {
+      flex: 1;
+      padding: 12px;
+      text-align: center;
+      cursor: pointer;
+      border-bottom: 3px solid transparent;
+      font-size: 13px;
+      font-weight: 500;
+      color: #666;
+      transition: all 0.2s;
+    }
+
+    .tab.active {
+      color: #667eea;
+      border-bottom-color: #667eea;
+    }
+
+    .tab-content {
+      display: none;
+      padding: 16px;
+      max-height: 400px;
+      overflow-y: auto;
+    }
+
+    .tab-content.active {
+      display: block;
+    }
+
+    .field-item {
+      background: white;
+      padding: 12px;
+      margin-bottom: 10px;
+      border-radius: 6px;
+      border-left: 4px solid #667eea;
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+    }
+
+    .field-info {
+      flex: 1;
+    }
+
+    .field-label {
+      font-weight: 600;
+      color: #333;
+      font-size: 13px;
+    }
+
+    .field-value {
+      color: #666;
+      font-size: 12px;
+      margin-top: 4px;
+      word-break: break-all;
+    }
+
+    .field-actions {
+      display: flex;
+      gap: 8px;
+      margin-left: 8px;
+    }
+
+    .btn {
+      padding: 6px 12px;
+      border: none;
+      border-radius: 4px;
+      cursor: pointer;
+      font-size: 12px;
+      font-weight: 500;
+      transition: all 0.2s;
+    }
+
+    .btn-primary {
+      background: #667eea;
+      color: white;
+    }
+
+    .btn-primary:hover {
+      background: #5568d3;
+    }
+
+    .btn-secondary {
+      background: #f0f0f0;
+      color: #333;
+    }
+
+    .btn-secondary:hover {
+      background: #e0e0e0;
+    }
+
+    .btn-danger {
+      background: #ff6b6b;
+      color: white;
+      padding: 4px 8px;
+    }
+
+    .btn-danger:hover {
+      background: #ff5252;
+    }
+
+    .empty-state {
+      text-align: center;
+      padding: 40px 20px;
+      color: #999;
+    }
+
+    .empty-state p {
+      font-size: 14px;
+      margin-bottom: 10px;
+    }
+
+    .action-buttons {
+      display: flex;
+      gap: 8px;
+      margin-bottom: 16px;
+    }
+
+    .action-buttons .btn {
+      flex: 1;
+    }
+
+    .save-prompt {
+      background: white;
+      padding: 16px;
+      border-radius: 6px;
+      margin-bottom: 16px;
+      border: 2px solid #667eea;
+    }
+
+    .save-prompt h3 {
+      color: #667eea;
+      font-size: 14px;
+      margin-bottom: 10px;
+    }
+
+    .save-field-item {
+      background: #f9f9f9;
+      padding: 8px;
+      margin-bottom: 8px;
+      border-radius: 4px;
+      font-size: 12px;
+    }
+
+    .save-field-item strong {
+      color: #333;
+    }
+
+    .save-field-item .value {
+      color: #666;
+      margin-top: 2px;
+    }
+
+    .status-message {
+      padding: 12px;
+      border-radius: 4px;
+      margin-bottom: 12px;
+      font-size: 13px;
+      display: none;
+    }
+
+    .status-message.show {
+      display: block;
+    }
+
+    .status-success {
+      background: #c8e6c9;
+      color: #2e7d32;
+    }
+
+    .status-error {
+      background: #ffcdd2;
+      color: #c62828;
+    }
+
+    .settings-group {
+      background: white;
+      padding: 12px;
+      margin-bottom: 12px;
+      border-radius: 6px;
+    }
+
+    .settings-group label {
+      display: flex;
+      align-items: center;
+      gap: 8px;
+      cursor: pointer;
+      font-size: 13px;
+      color: #333;
+      margin-bottom: 8px;
+    }
+
+    .settings-group input[type="checkbox"] {
+      cursor: pointer;
+    }
+
+    .settings-group:last-child {
+      margin-bottom: 0;
+    }
+  </style>
+</head>
+<body>
+  <div class="header">
+    <h1>Form Autofill</h1>
+  </div>
+
+  <div class="tabs">
+    <div class="tab active" data-tab="autofill">Autofill</div>
+    <div class="tab" data-tab="saved">Saved Fields</div>
+    <div class="tab" data-tab="settings">Settings</div>
+  </div>
+
+  <!-- Autofill Tab -->
+  <div id="autofill" class="tab-content active">
+    <div class="action-buttons">
+      <button class="btn btn-primary" id="autofillBtn">Autofill All Fields</button>
+    </div>
+
+    <div id="savePrompt" class="save-prompt" style="display: none;">
+      <h3>Save these fields for later?</h3>
+      <div id="fieldsToSave"></div>
+      <div style="margin-top: 12px; display: flex; gap: 8px;">
+        <button class="btn btn-primary" id="confirmSaveBtn" style="flex: 1;">Save</button>
+        <button class="btn btn-secondary" id="rejectSaveBtn" style="flex: 1;">Skip</button>
+      </div>
+    </div>
+
+    <div id="status" class="status-message"></div>
+
+    <p style="color: #999; font-size: 12px; line-height: 1.6; padding: 0 12px; margin-top: 16px;">
+      💡 <strong>How it works:</strong><br>
+      1. Fill a form manually<br>
+      2. Extension asks to save your data<br>
+      3. Similar fields auto-fill next time
+    </p>
+  </div>
+
+  <!-- Saved Fields Tab -->
+  <div id="saved" class="tab-content">
+    <div id="savedFieldsList"></div>
+  </div>
+
+  <!-- Settings Tab -->
+  <div id="settings" class="tab-content">
+    <div class="settings-group">
+      <label>
+        <input type="checkbox" id="enableAutofill" checked>
+        Enable autofill on this site
+      </label>
+    </div>
+
+    <div class="settings-group">
+      <label>
+        <input type="checkbox" id="showIndicators" checked>
+        Show field indicators
+      </label>
+    </div>
+
+    <div class="settings-group">
+      <h3 style="margin-bottom: 10px; color: #333; font-size: 13px;">Data Management</h3>
+      <button class="btn btn-secondary" id="exportBtn" style="width: 100%; margin-bottom: 8px;">Export Data</button>
+      <button class="btn btn-secondary" id="importBtn" style="width: 100%; margin-bottom: 8px;">Import Data</button>
+      <button class="btn btn-danger" id="clearBtn" style="width: 100%;">Delete All Data</button>
+    </div>
+  </div>
+
+  <script src="popup.js"></script>
+</body>
+</html>
