@@ -1,237 +1,112 @@
-# Form Autofill Extension
+# ✨ Fillora — Smart Form Autofill & Learning Engine
 
-A smart Chrome extension that learns from forms you fill and auto-completes similar fields across the web. Completely free and runs locally on your machine.
-
-## Features
-
-✅ **Learn from any form** — Fill a form once, extension asks to save your data  
-✅ **Smart matching** — Recognizes field names, labels, and types  
-✅ **One-click autofill** — Click the green indicator to fill matched fields  
-✅ **Bulk autofill** — Fill all detected fields on a page instantly  
-✅ **Secure storage** — All data stored locally in Chrome, never uploaded  
-✅ **Import/Export** — Backup and transfer your saved fields as JSON  
-✅ **No external API** — Works completely offline
-
-## Installation
-
-### Step 1: Get the Code
-
-Clone or download this repository to your computer:
-```bash
-git clone <repo-url>
-cd form-autofill-extension
-```
-
-Or just copy these files into a folder:
-- `manifest.json`
-- `content-script.js`
-- `popup.html`
-- `popup.js`
-- `background.js`
-
-### Step 2: Load Extension into Chrome
-
-1. Open Chrome and go to `chrome://extensions/`
-2. Turn on **Developer mode** (toggle in top right)
-3. Click **Load unpacked**
-4. Select the folder containing your extension files
-5. Done! The extension is now active
-
-You should see the extension icon in your toolbar.
-
-## How to Use
-
-### Saving Fields
-
-1. **Find a form** (Google Form, job application, signup, etc.)
-2. **Fill it normally** with your information
-3. **Submit the form** — Extension will ask: "Save these fields?"
-4. **Click Save** — Your data is stored locally
-
-### Autofilling Forms
-
-Two methods:
-
-**Method 1: Click the indicator**
-- Green checkmark appears next to detected fields
-- Click it to auto-fill that specific field
-
-**Method 2: Autofill all at once**
-- Click the extension icon → Click "Autofill All Fields"
-- All matching fields on the page fill instantly
-
-### Managing Saved Data
-
-Click the extension icon, go to **Saved Fields** tab:
-- View all your saved information
-- Delete individual fields
-- See exactly what's stored
-
-### Backup & Restore
-
-**Export your data:**
-1. Click extension icon → Settings tab
-2. Click "Export Data"
-3. JSON file downloads to your computer
-
-**Import data:**
-1. Click "Import Data"
-2. Select a JSON file
-3. Your fields are restored
-
-**Clear everything:**
-1. Click "Delete All Data" in Settings
-2. All saved fields are permanently removed
-
-## What Fields Get Saved?
-
-The extension captures:
-- **Name fields** (full name, first name, last name)
-- **Email addresses**
-- **Phone numbers**
-- **Addresses** (street, city, state, zip)
-- **Education** (school, college, degree)
-- **Professional info** (company, job title, skills)
-- Literally any text field you fill
-
-**What it WON'T save:**
-- Passwords
-- Credit card numbers
-- Hidden fields
-- File uploads
-
-## File Structure
-
-```
-form-autofill-extension/
-├── manifest.json           # Chrome extension config
-├── content-script.js       # Runs on web pages (detects + fills)
-├── popup.html             # Extension popup UI
-├── popup.js               # Popup logic
-├── background.js          # Background service worker
-└── README.md              # This file
-```
-
-## How Matching Works
-
-The extension matches fields using:
-
-1. **Name matching** (highest priority)
-   - Looks for keywords like "email", "phone", "name" in field ID/name
-   
-2. **Label matching**
-   - Compares visible field labels with saved field names
-   
-3. **Type matching**
-   - Email input → email data
-   - Phone input → phone data
-   
-4. **Confidence threshold**
-   - Only fills if match score ≥ 2/10 (80%+ confident)
-   - Prevents wrong data going into wrong fields
-
-## Customization
-
-### Change Colors
-
-Edit `popup.html` in the `<style>` section:
-
-```css
-.btn-primary {
-  background: #667eea;  /* Change this color */
-}
-```
-
-### Change Confidence Threshold
-
-In `content-script.js`, find this line:
-```javascript
-return bestScore >= 2 ? bestMatch : null; // Higher = stricter
-```
-
-Change `2` to:
-- `1` = more aggressive matching
-- `3` = stricter, fewer false positives
-
-### Exclude Certain Websites
-
-Add to `manifest.json` content_scripts:
-```json
-"exclude_matches": [
-  "*://bank.com/*",
-  "*://crypto-wallet.com/*"
-]
-```
-
-## Troubleshooting
-
-**Fields not detected?**
-- Refresh the page
-- Check that fields aren't hidden
-- Some dynamic forms may need JavaScript execution
-
-**Autofill not working?**
-- Click extension icon → Autofill tab
-- Check "Saved Fields" tab — data actually saved?
-- Try manually clicking the green indicator
-
-**Data lost after restart?**
-- Chrome local storage persists — shouldn't happen
-- Try export/import to backup
-
-**Chrome says "Unsafe extension"?**
-- It's just a warning for unpacked extensions
-- Perfectly safe — you control the code
-- Install normally with official Chrome Web Store release (not in scope)
-
-## Privacy & Security
-
-✅ **All data stored locally** — Never leaves your computer  
-✅ **No tracking** — No analytics, no servers  
-✅ **Open source** — Code is visible, can be audited  
-✅ **No permissions** — Only accesses form fields on pages you visit  
-
-## Future Improvements (DIY)
-
-Ideas to extend the extension:
-
-1. **Password field detection** — Skip sensitive fields intelligently
-2. **Form templates** — Save "full address" as one bundle
-3. **Context awareness** — Different data for work vs personal
-4. **Keyboard shortcuts** — Ctrl+Shift+L to autofill
-5. **Sync across devices** — Store in cloud (requires backend)
-6. **Multi-language support** — Detect "Nombre" = "Name"
-
-## FAQ
-
-**Q: Is this legal?**  
-A: Yes. You own your data, stored locally, used only where you want.
-
-**Q: Can websites detect I'm using this?**  
-A: No, it just fills form fields like a real user would.
-
-**Q: What if I want to clear data?**  
-A: Settings → "Delete All Data" wipes everything instantly.
-
-**Q: Can I use this on mobile?**  
-A: Chrome Extensions don't work on mobile browsers yet. Desktop only.
-
-**Q: How much disk space does it use?**  
-A: Typically <1 MB. Chrome limits storage to 5-10 MB per extension.
-
-## Support
-
-If something breaks:
-
-1. Check Chrome console for errors (`Ctrl+Shift+J` on the page)
-2. Reload the extension: `chrome://extensions/` → Reload button
-3. Try clearing all data and starting fresh
-4. Check field names in "Inspect" → right-click field → Inspect
-
-## License
-
-Free to use, modify, and distribute. No restrictions.
+> An ultra-premium, privacy-first Chrome Extension that intelligently learns from your inputs, adapts to any form structure, and completes fields instantly with zero-latency.
 
 ---
 
-**Made with ❤️ for form-filling sanity.**
+## 🌟 Visual Preview & Experience
+Fillora features a custom-designed **Glassmorphic Obsidian** user interface built with radial deep-space gradients, frosted translucent cards, iOS-style springy toggles, and smooth CSS micro-animations. It fits seamlessly inside the browser popup window with elegant rounded layout borders.
+
+---
+
+## 🚀 Key Architectural Capabilities
+
+### 🧠 1. DOM-Climbing Heuristic Engine
+Instead of relying on rigid, pre-defined selector templates, Fillora climbs the DOM tree dynamically from any input field to discover context:
+* **Synonym Mapping**: Analyzes `id`, `name`, `placeholder`, `aria-label`, and text nodes using robust regular expressions to match fields like `"fname"`, `"first_name"`, `"given-name"` to your stored `First Name` entry.
+* **Layout Interception**: Gracefully parses elements and form submission events to detect newly typed information and prompt you to save it instantly.
+
+### ⚡ 2. Zero-Latency Caching
+* **Synchronous Local Memory**: Avoids Chrome's storage read/write bottlenecks by managing operations within a fast in-memory controller class.
+* **Instantaneous UI Redraws**: Saved field lists, searches, and configurations render in real-time, matching your exact inputs with zero stutter.
+* **50ms Debounced Searches**: Filters large credential databases dynamically without thrashing layout execution threads.
+
+### 🎨 3. Frosted Obsidian Glassmorphism
+* Beautiful high-contrast visual layers utilizing a luxurious space gradient (`#1e1b4b` to `#030712`).
+* Smooth spring-physics animations (`cubic-bezier(0.34, 1.56, 0.64, 1)`) for card hovers, tab switches, and slide-in alert boxes.
+* Custom, crisp vector SVG indicators for all field types, removing generic emojis.
+
+### 🛡️ 4. Bulletproof Cross-Browser Compatibility
+* **Universal Clipboard Copy**: Automatically detects and falls back to a secure invisible textarea copy context if browser clipboard APIs are restricted.
+* **Safe Runtime Dispatches**: All inter-script dispatches are encapsulated in active `chrome.runtime.lastError` and `try-catch` monitors to guarantee crash-free operation on Brave, Edge, Opera, and Chrome.
+
+---
+
+## 📂 Project Directory Structure
+The repository is structured cleanly to separate active extension codes in the root from documentation and legacy archive resources:
+
+```
+Fillora-Extension/
+├── docs/                         # 📁 Technical Documentation & Resources
+│   ├── archive/                  # 🗃️ Legacy outdated backup files
+│   │   ├── manifest.json
+│   │   ├── background.js
+│   │   ├── content-script.js
+│   │   ├── popup.html
+│   │   └── popup.js
+│   ├── QUICK_START.md            # 📖 Step-by-step developer start guide
+│   └── README.md                 # 🏆 This master documentation file
+├── icons/                        # 🎨 Brand Icon Pack (16px, 48px, 128px)
+├── background.js                 # ⚙️ Service Worker handling background tasks
+├── content-script.js             # 🧬 Content script detecting and filling forms
+├── popup.html                    # 🖼️ Breathtaking Glassmorphic Popup UI
+├── popup.js                      # 🕹️ Zero-Latency Extension controller
+├── manifest.json                 # 📜 Extension manifest specifications
+└── kiranteja_resume_fields.json  # 💾 Custom resume fields seed data JSON
+```
+
+---
+
+## 💻 Developer Installation Guide
+
+### Step 1: Clone or Download the Source
+```bash
+git clone https://github.com/KiranTejz20005/Fillora-Extension.git
+cd Fillora-Extension
+```
+
+### Step 2: Load the Unpacked Extension into Chrome
+1. Open Google Chrome and type `chrome://extensions/` into the URL bar.
+2. Toggle the **Developer mode** switch in the top-right corner.
+3. Click the **Load unpacked** button in the top-left corner.
+4. Select the project root folder (**`Fillora-Extension`**) containing the active extension codes.
+5. The Fillora Extension is now loaded and fully active on your browser! Pin the extension to your toolbar for the best experience.
+
+---
+
+## 💾 Stored Fields JSON Format
+You can seed or restore your autofill details by uploading a custom JSON backup. The schema follows this clean configuration:
+
+```json
+[
+  {
+    "label": "Full Name",
+    "value": "Kiran Teja",
+    "fieldType": "text",
+    "patterns": ["name", "fullname", "first_last"]
+  },
+  {
+    "label": "Email Address",
+    "value": "vijji1650@gmail.com",
+    "fieldType": "email",
+    "patterns": ["email", "mail_id", "email_address"]
+  }
+]
+```
+
+To import this data:
+1. Open the extension popup.
+2. Navigate to the **Settings** tab.
+3. Click **Import Fields from JSON** and select `kiranteja_resume_fields.json` from the repository root.
+
+---
+
+## 🔒 Security & Offline Promise
+Fillora is built to be a **100% offline, privacy-first** engine. 
+* **Zero Remote Servers**: All forms, inputs, and credentials are saved locally in the browser's sandbox using `chrome.storage.local`.
+* **Zero Tracking**: No analytics, telemetry, or remote dependencies are loaded.
+* **No Leaks**: Sensitive input forms (like passwords, card numbers, or hidden field tags) are strictly bypassed.
+
+---
+
+*Made with ❤️ for form-filling sanity and visual perfection.*
