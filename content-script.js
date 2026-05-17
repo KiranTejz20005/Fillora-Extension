@@ -521,7 +521,7 @@ class Fillora {
 
         const tag = current.tagName.toLowerCase();
         const role = current.getAttribute('role') || '';
-        const cls = current.className || '';
+        const cls = typeof current.className === 'string' ? current.className : (current.getAttribute('class') || '');
         const txt = (current.textContent || '').toLowerCase().trim();
 
         const isSubmitType = current.type === 'submit' || tag === 'button' || role === 'button';
