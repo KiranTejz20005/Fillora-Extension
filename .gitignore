@@ -1,0 +1,8 @@
+# Kiro agent workspace
+.agent/
+
+# GitHub workflows / config
+.github/
+
+# Documentation
+docs/
