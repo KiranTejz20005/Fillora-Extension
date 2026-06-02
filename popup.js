@@ -227,21 +227,30 @@ class FilloraPopup {
       patterns: [label.toLowerCase().replace(/\s+/g, '_')]
     };
 
-    // Update local cache synchronously
-    const existingIndex = this.allSavedFields.findIndex(f => f.label.toLowerCase() === label.toLowerCase());
-    if (existingIndex >= 0) {
-      this.allSavedFields[existingIndex] = newField;
+    // Upsert — update if exact label match already exists, else append (no duplicates)
+    const existingIndex = this.allSavedFields.findIndex(
+      f => f.label.toLowerCase() === label.toLowerCase()
+    );
+    const isUpdate = existingIndex >= 0;
+
+    if (isUpdate) {
+      this.allSavedFields = [
+        ...this.allSavedFields.slice(0, existingIndex),
+        newField,
+        ...this.allSavedFields.slice(existingIndex + 1)
+      ];
     } else {
-      this.allSavedFields.push(newField);
+      this.allSavedFields = [...this.allSavedFields, newField];
     }
 
-    // Render list immediately (Zero Latency!)
     this.renderFieldsList();
     this.closeAddFieldPane();
 
-    // Commit to chrome storage in background
     chrome.storage.local.set({ saved_fields: this.allSavedFields }, () => {
-      this.showStatus(`Field "${label}" saved!`, 'success');
+      this.showStatus(
+        isUpdate ? `Updated "${label}"` : `Field "${label}" saved!`,
+        'success'
+      );
     });
   }
 
@@ -431,14 +440,24 @@ class FilloraPopup {
       return;
     }
 
-    // Update local cache synchronously first (Zero Latency!)
-    this.allSavedFields[index].label = newLabel;
-    this.allSavedFields[index].value = newValue;
-    this.allSavedFields[index].patterns = [newLabel.toLowerCase().replace(/\s+/g, '_')];
+    // Check if the new label already exists on a DIFFERENT card
+    const collision = this.allSavedFields.findIndex(
+      (f, i) => i !== index && f.label.toLowerCase() === newLabel.toLowerCase()
+    );
+    if (collision >= 0) {
+      this.showStatus(`A field named "${newLabel}" already exists.`, 'error');
+      return;
+    }
+
+    // Immutable update
+    this.allSavedFields = this.allSavedFields.map((f, i) =>
+      i === index
+        ? { ...f, label: newLabel, value: newValue, patterns: [newLabel.toLowerCase().replace(/\s+/g, '_')] }
+        : f
+    );
 
     this.renderFieldsList();
 
-    // Commit to chrome storage asynchronously
     chrome.storage.local.set({ saved_fields: this.allSavedFields }, () => {
       this.showStatus('Saved updates successfully.', 'success');
     });
@@ -491,12 +510,14 @@ class FilloraPopup {
 
   deleteField(index) {
     const field = this.allSavedFields[index];
-    
-    // Update local cache synchronously first (Zero Latency!)
-    this.allSavedFields.splice(index, 1);
+
+    // Immutable remove
+    this.allSavedFields = [
+      ...this.allSavedFields.slice(0, index),
+      ...this.allSavedFields.slice(index + 1)
+    ];
     this.renderFieldsList();
 
-    // Commit to storage asynchronously
     chrome.storage.local.set({ saved_fields: this.allSavedFields }, () => {
       this.showStatus(`Deleted "${field.label}"`, 'success');
     });
@@ -505,19 +526,49 @@ class FilloraPopup {
   // ─── Save Prompt Handler ──────────────────────────────────────────
 
   showSavePrompt(fields) {
+    // Filter out empty / unlabelled fields
     const safe = fields.filter(f => f.value && f.label && f.label.length > 0);
     if (safe.length === 0) return;
 
-    this.pendingFields = safe;
-    const container = document.getElementById('fieldsToSaveList');
-    document.getElementById('savePromptCount').textContent = `${safe.length} field${safe.length !== 1 ? 's' : ''}`;
+    // De-duplicate incoming fields by label (keep last occurrence)
+    const deduped = [];
+    const seenLabels = new Map();
+    safe.forEach(f => seenLabels.set(f.label.toLowerCase(), f));
+    seenLabels.forEach(f => deduped.push(f));
 
-    container.innerHTML = safe.map((f) => `
-      <div class="save-prompt-item">
-        <span class="save-prompt-label">${this.escapeHtml(f.label)}</span>
-        <span class="save-prompt-value" title="${this.escapeHtml(f.value)}">${this.escapeHtml(f.value)}</span>
-      </div>
-    `).join('');
+    this.pendingFields = deduped;
+
+    const container = document.getElementById('fieldsToSaveList');
+
+    // Count truly new fields (not already saved with identical label+value)
+    const newCount = deduped.filter(f => {
+      const existing = this.allSavedFields.find(
+        s => s.label.toLowerCase() === f.label.toLowerCase()
+      );
+      return !existing || existing.value !== f.value;
+    }).length;
+
+    document.getElementById('savePromptCount').textContent =
+      `${newCount} new${deduped.length !== newCount ? `, ${deduped.length - newCount} update${deduped.length - newCount !== 1 ? 's' : ''}` : ''}`;
+
+    container.innerHTML = deduped.map((f) => {
+      const existing = this.allSavedFields.find(
+        s => s.label.toLowerCase() === f.label.toLowerCase()
+      );
+      const isDuplicate = existing && existing.value === f.value;
+      const isUpdate    = existing && existing.value !== f.value;
+
+      return `
+        <div class="save-prompt-item">
+          <span class="save-prompt-label">
+            ${this.escapeHtml(f.label)}
+            ${isDuplicate ? '<span class="duplicate-badge">already saved</span>' : ''}
+            ${isUpdate    ? '<span class="duplicate-badge" style="color:#86efac;background:rgba(134,239,172,0.1);border-color:rgba(134,239,172,0.25);">update</span>' : ''}
+          </span>
+          <span class="save-prompt-value" title="${this.escapeHtml(f.value)}">${this.escapeHtml(f.value)}</span>
+        </div>
+      `;
+    }).join('');
 
     document.getElementById('savePrompt').style.display = 'block';
     this.switchTab('autofill');
@@ -526,33 +577,53 @@ class FilloraPopup {
   savePendingFields() {
     if (!this.pendingFields) return;
 
-    this.pendingFields.forEach(newField => {
-      const idx = this.allSavedFields.findIndex(f => f.label.toLowerCase() === newField.label.toLowerCase());
+    // Skip fields that are exact duplicates (same label + same value)
+    const toSave = this.pendingFields.filter(newField => {
+      const existing = this.allSavedFields.find(
+        f => f.label.toLowerCase() === newField.label.toLowerCase()
+      );
+      return !existing || existing.value !== newField.value;
+    });
+
+    // Immutable upsert — build a new array from scratch
+    const updated = [...this.allSavedFields];
+    toSave.forEach(newField => {
+      const idx = updated.findIndex(
+        f => f.label.toLowerCase() === newField.label.toLowerCase()
+      );
       const cleaned = {
         label: newField.label,
         value: newField.value,
         fieldType: newField.fieldType || 'text',
         patterns: [newField.label.toLowerCase().replace(/\s+/g, '_')]
       };
-      
       if (idx >= 0) {
-        this.allSavedFields[idx] = cleaned;
+        updated[idx] = cleaned;
       } else {
-        this.allSavedFields.push(cleaned);
+        updated.push(cleaned);
       }
     });
 
-    // Update list layout immediately (Zero Latency!)
+    this.allSavedFields = updated;
     this.renderFieldsList();
     document.getElementById('savePrompt').style.display = 'none';
 
-    // Commit to storage in background
-    chrome.storage.local.set({ 
-      saved_fields: this.allSavedFields, 
-      has_pending: false, 
-      pending_fields: [] 
+    const skipped = this.pendingFields.length - toSave.length;
+    const savedCount = toSave.length;
+
+    chrome.storage.local.set({
+      saved_fields: this.allSavedFields,
+      has_pending: false,
+      pending_fields: []
     }, () => {
-      this.showStatus(`Successfully saved ${this.pendingFields.length} field${this.pendingFields.length !== 1 ? 's' : ''}!`, 'success');
+      if (savedCount === 0) {
+        this.showStatus('All fields were already saved — nothing new.', 'success');
+      } else {
+        this.showStatus(
+          `Saved ${savedCount} field${savedCount !== 1 ? 's' : ''}${skipped > 0 ? `, ${skipped} duplicate${skipped !== 1 ? 's' : ''} skipped` : ''}.`,
+          'success'
+        );
+      }
       this.pendingFields = null;
     });
   }
@@ -610,36 +681,58 @@ class FilloraPopup {
     reader.onload = (event) => {
       try {
         const imported = JSON.parse(event.target.result);
-        if (!Array.isArray(imported)) throw new Error();
+        if (!Array.isArray(imported)) throw new Error('Not an array');
+
+        let addedCount = 0;
+        let updatedCount = 0;
+        let skippedCount = 0;
+
+        // Build a fresh copy so we never mutate in place
+        const updated = [...this.allSavedFields];
 
         imported.forEach(importedField => {
           if (!importedField.label || !importedField.value) return;
-          const idx = this.allSavedFields.findIndex(f => f.label.toLowerCase() === importedField.label.toLowerCase());
+
           const cleaned = {
             label: importedField.label,
             value: importedField.value,
             fieldType: importedField.fieldType || 'text',
             patterns: importedField.patterns || [importedField.label.toLowerCase().replace(/\s+/g, '_')]
           };
+
+          const idx = updated.findIndex(
+            f => f.label.toLowerCase() === cleaned.label.toLowerCase()
+          );
+
           if (idx >= 0) {
-            this.allSavedFields[idx] = cleaned;
+            if (updated[idx].value === cleaned.value) {
+              skippedCount++;   // exact duplicate — skip silently
+            } else {
+              updated[idx] = cleaned;
+              updatedCount++;   // same label, different value — update
+            }
           } else {
-            this.allSavedFields.push(cleaned);
+            updated.push(cleaned);
+            addedCount++;
           }
         });
 
-        // Update list and storage synchronously & background
+        this.allSavedFields = updated;
         this.renderFieldsList();
-        
+
         chrome.storage.local.set({ saved_fields: this.allSavedFields }, () => {
-          this.showStatus(`Successfully imported ${imported.length} fields.`, 'success');
+          const parts = [];
+          if (addedCount)   parts.push(`${addedCount} added`);
+          if (updatedCount) parts.push(`${updatedCount} updated`);
+          if (skippedCount) parts.push(`${skippedCount} duplicate${skippedCount !== 1 ? 's' : ''} skipped`);
+          this.showStatus(parts.length ? parts.join(', ') + '.' : 'Nothing imported.', 'success');
         });
       } catch {
         this.showStatus('Invalid backup file format.', 'error');
       }
     };
     reader.readAsText(file);
-    e.target.value = ''; // Reset file input
+    e.target.value = '';
   }
 
   clearAllData() {
